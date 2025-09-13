@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+
+
+
+code{
+    background-color: #424242 ;
+    padding:3px;
+    border-radius: 4px;
+    margin: 0 3px;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+::-webkit-scrollbar {
+    width: 14px;
+    
+}
+
+html{
+    font-size: 16px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #212222;
+    
+    width: 100px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #333 ;
+    border-radius: 100px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #C0C0C1;
+}
