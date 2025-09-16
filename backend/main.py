@@ -117,7 +117,6 @@ def to_langchain_messages(messages: list[Message]):
             converted.append(SystemMessage(content=msg.content))
         else:
             raise ValueError(f"Unsupported role: {msg.role}")
-    print(converted)
     return converted
 
 
@@ -198,7 +197,6 @@ async def generate_title(request: TitleRequest):
         if len(clean_title.split()) > 5:
             clean_title = " ".join(clean_title.split()[:5])
 
-        print(clean_title)
         
         return {"title": clean_title}
         
