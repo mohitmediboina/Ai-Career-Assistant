@@ -11,6 +11,10 @@ code{
     margin: 0 3px;
 }
 
+p{
+    font-size: 16px;
+}
+
 .prose pre {
     padding: 3px;
 

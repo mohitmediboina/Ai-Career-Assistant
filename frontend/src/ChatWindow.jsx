@@ -231,7 +231,7 @@ const ChatWindow = () => {
   }, [currentTitle]);
 
   return (
-    <div className="flex h-screen bg-[#212121] w-full text-white overflow-hidden">
+    <div className="flex h-dvh md:h-screen bg-[#212121] w-full text-white overflow-hidden">
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
@@ -382,12 +382,12 @@ const ChatWindow = () => {
         </main>
 
         {/* Input Area */}
-        <footer className="p-3 md:p-4 border-t border-stone-700 bg-[#212121]">
+        <footer className="p-3 md:p-4  bg-[#212121]">
           <div className="max-w-4xl mx-auto flex gap-2 md:gap-3">
             <textarea
               className="flex-1 bg-[#303030] text-white rounded-2xl px-4 py-3 text-sm md:text-base
-                         resize-none outline-none placeholder-stone-400
-                         focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-all
+                         resize-none outline-none 
+                           transition-all
                          min-h-[48px] max-h-32"
               placeholder="Type your message..."
               value={input}
