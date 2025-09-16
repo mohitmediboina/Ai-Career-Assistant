@@ -11,13 +11,18 @@ code{
     margin: 0 3px;
 }
 
+.prose pre {
+    padding: 3px;
+
+}
+
 .prose code::before,
 .prose code::after {
   content: none !important;
 }
 
 ::-webkit-scrollbar {
-    width: 14px;
+    width: 10px;
     
 }
 
@@ -29,7 +34,7 @@ html{
 ::-webkit-scrollbar-track {
     background: #212222;
     
-    width: 100px;
+    width: 90px;
 }
 
 /* Handle */

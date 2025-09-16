@@ -4,7 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, AIMessageChunk, ToolMessage
 from dotenv import load_dotenv
 from langchain_community.tools.tavily_search import TavilySearchResults
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
@@ -166,7 +166,45 @@ async def chat_stream(request:ChatRequest):
         generate_chat_responses(langchain_msgs),
         media_type="text/event-stream",
        
-    )
+)
+
+class TitleRequest(BaseModel):
+    messages: List[Message]
+
+@app.post("/title")
+async def generate_title(request: TitleRequest):
+    try:
+        messages = to_langchain_messages(request.messages)
+        
+        # Add system message for title generation
+        system_message = SystemMessage(content="""
+        Generate a very concise title (4-5 words maximum) that captures the main topic of the conversation.
+        Respond with ONLY the title, nothing else.
+        Make it clear and descriptive.
+        """)
+        
+        # Get first user message for context
+        first_message = messages[0].content if messages else ""
+        human_message = HumanMessage(content=f"Generate title for: {first_message}")
+        
+        # Get title from LLM
+        messages_for_title = [system_message, human_message]
+        title_response = await llm.ainvoke(messages_for_title)
+        
+        # Clean up the title (remove quotes, newlines, etc)
+        clean_title = title_response.content.strip('" \n').strip()
+        
+        # Ensure title length
+        if len(clean_title.split()) > 5:
+            clean_title = " ".join(clean_title.split()[:5])
+
+        print(clean_title)
+        
+        return {"title": clean_title}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/health")
 async def health_check():

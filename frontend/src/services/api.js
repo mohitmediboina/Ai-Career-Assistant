@@ -58,6 +58,23 @@ export async function listConversations({ userId}) {
   return res.json();
 }
 
+// Add this new function
+export async function generateTitle({ messages, convoId }) {
+  try {
+    console.log("from gen tit ",convoId);
+    const res = await fetch(`${BASE_API_URL}/conversations/generate_title`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, convoId })
+    });
+  
+    return await res.json();
+  } catch (error) {
+    console.error("Error generating title:", error);
+    return { error };
+  }
+}
+
 // get convo
 export async function getConversation({ convoId }) {
   const res = await fetch(`${BASE_API_URL}/conversations/single/${convoId}`);

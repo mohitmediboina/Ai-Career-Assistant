@@ -5,6 +5,7 @@ import {
   getConversation,
   streamChat,
   listConversations,
+  generateTitle,
 } from "./services/api";
 import { ScaleLoader } from "react-spinners";
 import { useParams, useNavigate } from "react-router-dom";
@@ -50,6 +51,8 @@ const ChatWindow = () => {
     setAuth,
     convoIdsList,
     setConvoIdList,
+    currentTitle,
+    setCurrentTitle,
   } = useContext(MyContext);
 
   const userId = auth.userId;
@@ -83,8 +86,9 @@ const ChatWindow = () => {
     navigate("/");
   };
 
-  const handleSelectConvo = (id) => {
+  const handleSelectConvo = (id, title) => {
     navigate(`/chat/${id}`);
+    setCurrentTitle(title);
   };
 
   async function loadConversation(id) {
@@ -98,6 +102,11 @@ const ChatWindow = () => {
 
   async function listingconvoIds() {
     if (!userId) return;
+    if (messages.length >= 2) {
+      console.log("return from listing covo");
+      return;
+    }
+    console.log("listingconvoIds");
     try {
       const res = await listConversations({ userId });
       setConvoIdList(res || []);
@@ -108,16 +117,8 @@ const ChatWindow = () => {
     }
   }
 
-  // async function handleNewChat() {
-  //   try {
-  //     const res = await createConversation({ userId });
-  //     setConvoId(res._id);
-  //     setMessages([]);
-  //     navigate(`/chat/${res._id}`);
-  //   } catch (err) {
-  //     console.error("Failed to create conversation:", err);
-  //   }
-  // }
+  
+
 
   async function handleSend() {
     if (!input.trim() || isStreaming) return;
@@ -131,9 +132,6 @@ const ChatWindow = () => {
         currentConvoId = res._id;
         setConvoId(currentConvoId);
         navigate(`/chat/${currentConvoId}`);
-
-        // ✅ Refresh convo list
-        await listingconvoIds();
       } catch (err) {
         console.error("Failed to create conversation:", err);
         return;
@@ -142,6 +140,22 @@ const ChatWindow = () => {
 
     const userMessage = { role: "user", content: input };
     const assistantMessage = { role: "assistant", content: "" };
+
+    if (messages.length === 0) {
+        try {
+          const titleResponse = generateTitle({
+            messages: [userMessage],
+            convoId: currentConvoId,
+          });
+
+          if (titleResponse.title) {
+            setCurrentTitle(titleResponse.title);
+            // Refresh conversation list
+          }
+        } catch (err) {
+          console.error("Failed to generate title:", err);
+        }
+      }
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setInput("");
@@ -168,10 +182,20 @@ const ChatWindow = () => {
             });
           } else if (ev.type === "end" || ev.done) {
             setIsStreaming(false);
+
+            // Generate title if this is the first message
+
             loadConversation(currentConvoId);
+            
+
+            listingconvoIds()
+            
           }
         },
       });
+
+      
+
     } catch (err) {
       console.error("Streaming error:", err);
       setIsStreaming(false);
@@ -182,7 +206,13 @@ const ChatWindow = () => {
     navigate("/");
     setMessages([]);
     setConvoId(null);
+    setCurrentTitle("Ai Career Assistant");
   };
+
+  // Add this with your other useEffect hooks
+  useEffect(() => {
+    document.title = currentTitle;
+  }, [currentTitle]);
 
   return (
     <>
@@ -215,15 +245,17 @@ const ChatWindow = () => {
             <div className="history  mx-2 overflow-y-auto ">
               <h2 className="pl-4 py-2 text-stone-500">chats</h2>
               <ul className="flex flex-col gap-1 text-stone-300 ">
-                {convoIdsList?.map((id) => (
+                {convoIdsList?.map((convo) => (
                   <li
-                    key={id}
-                    onClick={() => handleSelectConvo(id)}
+                    key={convo.id}
+                    onClick={() => handleSelectConvo(convo.id, convo.title)}
                     className={`pl-4 py-[5px] rounded-xl cursor-pointer hover:bg-[#303030] ${
-                      convoId === id ? "bg-[#303030] font-medium" : ""
+                      convoId === convo.id ? "bg-[#303030] font-medium" : ""
                     }`}
                   >
-                    {id}
+                    <div className="truncate text-sm">
+                      {convo.title || "New Chat"}
+                    </div>
                   </li>
                 ))}
               </ul>

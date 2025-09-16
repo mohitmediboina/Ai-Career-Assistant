@@ -104,8 +104,15 @@ router.post("/", async (req, res) => {
     if (!decoded) return res.status(400).json({ error: "Failed" });
 
     // find conversation
-    const convo = await Conversation.findOne({ _id: convoId, userId });
-    console.log(convo);
+    // const convo = await Conversation.findOne({ _id: convoId, userId });
+    // console.log(convo);
+    const convo = await Conversation.findOneAndUpdate(
+      { _id: convoId, userId },
+      { 
+        $set: { updatedAt: new Date() }
+      },
+      { new: true }
+    );
     if (!convo) return res.status(404).json({ error: "Conversation not found" });
 
     // push user message first

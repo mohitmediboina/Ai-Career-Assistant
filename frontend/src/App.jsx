@@ -23,6 +23,7 @@ const App = () => {
 
   const [convoId, setConvoId] = useState(null);
   const [convoIdsList,setConvoIdList] = useState(null);
+  const [currentTitle,setCurrentTitle] = useState("Ai Career Assistant");
 
   const [auth, setAuth] = useState(() => {
     const storedAuth = localStorage.getItem("userDetails");
@@ -45,7 +46,9 @@ const App = () => {
     password,
     setPassword,
     convoIdsList,
-    setConvoIdList
+    setConvoIdList,
+    currentTitle,
+    setCurrentTitle
   };
 
   useEffect(() => {
