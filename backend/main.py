@@ -196,6 +196,7 @@ async def generate_title(request: TitleRequest):
         # Ensure title length
         if len(clean_title.split()) > 5:
             clean_title = " ".join(clean_title.split()[:5])
+            
 
         
         return {"title": clean_title}

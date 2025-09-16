@@ -2,9 +2,13 @@ import express from "express";
 import fetch from "node-fetch";
 import Conversation from "../models/Conversation.js"; // adjust path
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const router = express.Router();
-const FASTAPI_URL = "http://localhost:8000/chat_stream";
+const FASTAPI_URL = `${process.env.FASTAPI_URL}/chat_stream`;
+
 
 // router.post("/", async (req, res) => {
 //   try {

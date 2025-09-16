@@ -27,7 +27,9 @@ router.post("/generate_title", async (req, res) => {
     // Generate title using the first few messages
     const prompt = `Generate a short, concise title (maximum 40 characters) for this conversation. First message: ${messages[0]?.content}`;
     
-    const FASTAPI_URL = "http://localhost:8000/title";
+    const FASTAPI_URL = `${process.env.FASTAPI_URL}/title`;
+    
+
     // Use your AI model to generate title (similar to how you handle chat responses)
     const aiResponse = await fetch(FASTAPI_URL,{
       method:"POST",
@@ -35,7 +37,6 @@ router.post("/generate_title", async (req, res) => {
       body: JSON.stringify({ messages: messages }),
     })
 
-    
 
     
 
