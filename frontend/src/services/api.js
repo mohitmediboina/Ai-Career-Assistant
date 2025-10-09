@@ -1,6 +1,6 @@
 
 
-export const BASE_API_URL = "https://ai-career-assistant-node-backend.onrender.com"
+export const BASE_API_URL = "http://localhost:5000"
 
 //Register 
 export async function register({email, password}) {
@@ -28,7 +28,7 @@ export async function login({email, password}) {
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({email, password})
     })    
-
+    console.log(res, BASE_API_URL)
     return await res.json()
     
   } catch (error) {
