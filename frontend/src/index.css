@@ -33,12 +33,12 @@ p{
 html{
     font-size: 16px;
 }
-
+/* 
 /* Track */
 ::-webkit-scrollbar-track {
     background: #212222;
     
-    width: 90px;
+    width: 80px;
 }
 
 /* Handle */
@@ -50,4 +50,4 @@ html{
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #C0C0C1;
-}
+} 

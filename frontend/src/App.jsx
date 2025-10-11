@@ -4,6 +4,8 @@ import "./index.css";
 import { MyContext } from "./MyContext.jsx";
 import AuthPage from "./AuthPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Projects from "./Projects.jsx";
+import Resources from "./Resources.jsx";
 
 const Chat = () => {
   return (
@@ -76,6 +78,10 @@ const App = () => {
 
           {/* Existing convoId */}
           <Route path="/chat/:convoId" element={<Chat />} />
+
+          {/* New routes for features */}
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/resources" element={<Resources />} />
         </Routes>
       </BrowserRouter>
     </MyContext.Provider>
