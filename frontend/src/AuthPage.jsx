@@ -6,7 +6,7 @@ import { useContext } from 'react'
 
 const AuthPage = () => {
 
-  const {email, setEmail, password, setPassword, auth, setAuth} = useContext(MyContext);
+  const {email, setEmail, password, setPassword,  setAuth} = useContext(MyContext);
 
   async function handleRegister() {
     try {
