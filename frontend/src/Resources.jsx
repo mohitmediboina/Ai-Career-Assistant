@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { MyContext } from "./MyContext";
 import Sidebar from "./Sidebar.jsx";
+import ResumeAnalysisPage from "./ResumeAnalysisPage.jsx";
 
 const Resources = () => {
   const navigate = useNavigate();
@@ -73,9 +74,7 @@ const Resources = () => {
 
         {/* Resources Content */}
         <main className="flex-1 overflow-y-auto p-2">
-          <div className="text-center text-2xl md:text-3xl flex items-center mx-auto h-full justify-center font-bold">
-            Resources Page - Add your content here
-          </div>
+          <ResumeAnalysisPage/>
         </main>
       </div>
     </div>

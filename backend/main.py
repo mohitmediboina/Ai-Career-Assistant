@@ -17,6 +17,8 @@ import motor_db
 from bson import ObjectId
 from langchain_core.tools import tool
 import ast  # for safe list parsing if needed
+import re
+
 
 load_dotenv()
 
@@ -218,6 +220,7 @@ async def generate_chat_responses(messages: list, userId: str):
 
     yield f"data: {safe_json_encode({'type': 'end'})}\n\n"
 
+
 # Endpoint
 @app.post("/chat_stream")
 async def chat_stream(request: ChatRequest):
@@ -265,6 +268,91 @@ async def generate_title(request: TitleRequest):
         
         return {"title": clean_title}
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+class ResumeAnalysisRequest(BaseModel):
+    userId: str
+    job_details: str
+    
+    
+def extract_json_from_text(text: str):
+    """Extract the first valid JSON block from a model response."""
+    # Remove markdown-style code fences (```json ... ```)
+    text = re.sub(r"^```json|```$", "", text.strip(), flags=re.MULTILINE)
+    
+    # Try to find JSON using regex
+    match = re.search(r"\{[\s\S]*\}", text)
+    if not match:
+        raise ValueError("No JSON object found in text")
+    
+    json_str = match.group(0)
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError:
+        # Attempt cleanup
+        json_str = re.sub(r",\s*}", "}", json_str)
+        json_str = re.sub(r",\s*]", "]", json_str)
+        return json.loads(json_str)
+
+
+@app.post("/resume_analysis")
+async def resume_analysis(request: ResumeAnalysisRequest):
+    try:
+         # Validate and convert user ID
+        try:
+            user_id = ObjectId(request.userId)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid userId format")
+
+        # Fetch user
+        user_doc = await motor_db.db["users"].find_one({"_id": user_id})
+        if not user_doc:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        resume_text = user_doc.get("profile", {}).get("resume", "")
+        if not resume_text:
+            raise HTTPException(status_code=400, detail="No resume found for user")
+
+        # LLM instructions
+        system_message = SystemMessage(content="""
+        You are an expert resume evaluator. 
+        Compare the resume to the given job description.
+        Respond in STRICT JSON (no text, no comments).
+        JSON format:
+        {
+          "overall_match_score": number,
+          "sections": {
+            "skills": { "score": number, "missing": [strings], "suggestions": [strings] },
+            "experience": { "score": number, "missing": [strings], "suggestions": [strings] },
+            "education": { "score": number, "missing": [strings], "suggestions": [strings] },
+            "projects": { "score": number, "missing": [strings], "suggestions": [strings] },
+            "achievements": { "score": number, "missing": [strings], "suggestions": [strings] }
+          },
+          "summary": string
+        }
+        """)
+
+        human_message = HumanMessage(content=f"""
+        JOB DESCRIPTION:
+        {request.job_details}
+
+        RESUME:
+        {resume_text}
+        """)
+
+        response = await llm.ainvoke([system_message, human_message])
+
+        # Try to extract JSON safely
+        try:
+            result = extract_json_from_text(response.content)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Model returned invalid JSON: {str(e)}")
+
+
+        return result
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

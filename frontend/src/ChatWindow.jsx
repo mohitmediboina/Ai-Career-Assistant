@@ -57,6 +57,7 @@ const ChatWindow = () => {
 
   const userId = auth.userId;
   const token = auth.token;
+  console.log(userId);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);

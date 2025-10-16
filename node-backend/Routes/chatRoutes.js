@@ -269,7 +269,7 @@ router.post("/", async (req, res) => {
 
       // Enhanced system prompt for AI Career Assistant with onboarding and tool usage
       const systemPrompt = ` Make this conversation like human to an experienced career assistant with more then 10 years of experience.
-You are a personalized AI Career Assistant. 
+You are a personalized AI Career Assistant. You also have search tools use tavily search tool to get the latest information and jobs links from the internet.
 Use the user's profile information to give career guidance, resume improvement tips, and job search insights and you can also update user information in the db while conversation with the person to make it have a uptodate context .
 
 Follow these rules:
