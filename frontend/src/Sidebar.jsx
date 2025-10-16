@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 const Sidebar = ({ isOpen, setIsOpen, onNewChat, onSelectConvo, conversations, currentConvoId }) => {
   const navigate = useNavigate();
 
-  const handleProjectsClick = () => {
-    navigate("/projects");
+  const handleProfileClick = () => {
+    navigate("/profile");
     setIsOpen(false);
   };
 
@@ -26,12 +26,13 @@ const Sidebar = ({ isOpen, setIsOpen, onNewChat, onSelectConvo, conversations, c
 
       {/* Sidebar */}
       <div
-        className={`fixed md:relative z-50 bg-[#181818] text-white w-[280px] md:w-[280px] h-screen flex flex-col overflow-y-hidden transition-transform duration-300 ${
+        className={`fixed md:relative z-50 bg-[#181818] text-white w-[280px] md:w-[250px] h-screen flex flex-col overflow-y-hidden transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
+        
         <div className="p-4 flex justify-between items-center">
-          <h1 className="font-medium text-[16px]">Ai Career Assistant</h1>
+          <h1 className="font-medium text-[16px]"></h1>
           <button
             onClick={() => setIsOpen(false)}
             className="md:hidden text-white hover:bg-[#303030] rounded p-1"
@@ -69,23 +70,22 @@ const Sidebar = ({ isOpen, setIsOpen, onNewChat, onSelectConvo, conversations, c
           </button>
 
           {/* New Features Section */}
+          
           <div className="mx-2 my-2">
+          <h2 className="pl-4 py-2 text-stone-500">Features</h2>
+
             <button
-              onClick={handleProjectsClick}
-              className="flex gap-2 px-4 py-2 hover:bg-[#303030] w-full rounded-2xl items-center"
+              onClick={handleProfileClick}
+              className="flex gap-2 px-4 py-2  hover:bg-[#303030] w-full rounded-2xl items-center"
             >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 4a1 1 0 0 0-2 0v12a1 1 0 0 0 2 0V4zM7 9a1 1 0 0 1-2 0V4a1 1 0 0 1 2 0v5zm7-5a1 1 0 0 1 2 0v11a1 1 0 0 1-2 0V4zM4 15a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm13 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-              </svg>
-              <p className="text-white">Projects</p>
+             
+              <p className="text-white">Profile</p>
             </button>
             <button
               onClick={handleResourcesClick}
-              className="flex gap-2 px-4 py-2 hover:bg-[#303030] w-full rounded-2xl items-center mt-1"
+              className="flex gap-2 px-4 py-2 hover:bg-[#303030]  w-full rounded-2xl items-center mt-1"
             >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
+          
               <p className="text-white">Resources</p>
             </button>
           </div>

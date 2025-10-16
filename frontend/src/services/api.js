@@ -2,6 +2,45 @@
 
 export const BASE_API_URL = "http://localhost:5000"
 
+
+// api/user.js
+const API_URL = "http://localhost:5000/profile";
+
+// Get Profile
+export async function getProfile(token) {
+  const res = await fetch(`${API_URL}/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+// Update Profile (full)
+export async function updateProfile(token, data) {
+  const res = await fetch(`${API_URL}/me`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+// Partial Update
+export async function patchProfile(token, data) {
+  const res = await fetch(`${API_URL}/me`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+
 //Register 
 export async function register({email, password}) {
   try {

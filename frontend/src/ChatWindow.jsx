@@ -7,7 +7,7 @@ import {
   listConversations,
   generateTitle,
 } from "./services/api";
-import { ScaleLoader } from "react-spinners";
+import { ClimbingBoxLoader, ScaleLoader } from "react-spinners";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -98,6 +98,8 @@ const ChatWindow = () => {
   async function loadConversation(id) {
     try {
       const res = await getConversation({ convoId: id, token });
+      console.log(res.messages);
+     
       setMessages(res.messages || []);
     } catch (err) {
       console.error("Failed to load conversation:", err);
@@ -269,13 +271,26 @@ const ChatWindow = () => {
             </div>
           ) : (
             <div className="w-full flex flex-1 justify-center">
-              <div className="w-full max-w-[750px] flex flex-col gap-3 mx-auto">
-                {messages?.map((chat, index) =>
-                  chat.role === "assistant" ? (
-                    <AiChat key={index} message={chat.content} />
-                  ) : (
-                    <UserChat key={index} message={chat.content} />
-                  )
+              <div className="w-full max-w-[700px] flex flex-col gap-3 mx-auto">
+                {messages?.map((chat, index) =>{
+
+                  
+                  if (chat.role === "assistant"){
+                      return <AiChat key={index} message={chat.content} />
+                  }else if (chat.role === "user"){
+                      return <UserChat key={index} message={chat.content} />
+                  }else{
+                      return ""
+                  }
+
+                }
+
+
+                  // chat.role === "assistant" ? (
+                  //   <AiChat key={index} message={chat.content} />
+                  // ) : (
+                  //   <UserChat key={index} message={chat.content} />
+                  // )
                 )}
 
                 {/* Typing indicator - moved inside messages */}
@@ -293,10 +308,10 @@ const ChatWindow = () => {
         </main>
 
         {/* Input */}
-        <div className="w-full flex mx-auto items-center justify-center mb-4 px-4">
-          <footer className="w-full max-w-[750px] flex gap-2">
+        <div className="w-full flex mx-auto items-center  justify-center px-4 p">
+          <footer className="w-full max-w-[700px] flex gap-2">
             <textarea
-              className="flex-1 rounded-3xl p-3 text-[16px] bg-[#303030] resize-none max-h-32 text-white outline-none"
+              className="flex-1 rounded-4xl p-4 px-5 text-[16px] border border-stone-500 bg-[#303030] resize-none max-h-32 text-white outline-none"
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -316,7 +331,10 @@ const ChatWindow = () => {
               {isStreaming ? "..." : "Send"}
             </button>
           </footer>
+          
         </div>
+        <div className="text-center m-2 mb-4 text-stone-500">career assistant can make mistakes rarely</div>
+       
       </div>
     </div>
   );

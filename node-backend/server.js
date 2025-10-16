@@ -7,6 +7,7 @@ import cors from "cors";
 import userRoutes from "./Routes/userRoutes.js";
 import conversationRoutes from "./Routes/conversationRoutes.js";
 import chatRoutes from "./Routes/chatRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ mongoose.connect(MONGO_URI, {
 app.use("/users", userRoutes); // register, login
 app.use("/conversations", conversationRoutes); // create convo, list, delete
 app.use("/chat", chatRoutes); // send user message, stream AI
+app.use("/profile", profileRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

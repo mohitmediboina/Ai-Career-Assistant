@@ -12,18 +12,48 @@ from fastapi import Body
 from pydantic import BaseModel
 from typing import List
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-
-
+import asyncio
+import motor_db
+from bson import ObjectId
+from langchain_core.tools import tool
+import ast  # for safe list parsing if needed
 
 load_dotenv()
 
 # State definition
 class State(TypedDict):
+    userId: str
     messages: Annotated[list, add_messages]
 
 # Tools
 search_tool = TavilySearchResults(max_results=4)
-tools = [search_tool]
+
+@tool
+async def update_user_profile(field: str, value: str, user_id: str) -> str:
+    """Update the user's profile field with the given field and value. Use this when the user mentions an update to their profile, like getting a new job or changing skills. For skills, provide value as a comma-separated string e.g., 'Python, JavaScript, SQL'."""
+    if motor_db.db is None:
+        return "Database not available for update."
+    
+    update_dict = {"$set": {}}
+    if field == "skills":
+        # Parse comma-separated skills into list
+        skills_list = [skill.strip() for skill in value.split(",") if skill.strip()]
+        update_dict["$set"][f"profile.{field}"] = skills_list
+    else:
+        # For other fields like name, resume: treat as string
+        update_dict["$set"][f"profile.{field}"] = value
+    
+    # Update MongoDB
+    update_result = await motor_db.db["users"].update_one(
+        {"_id": ObjectId(user_id)},
+        update_dict
+    )
+    if update_result.modified_count > 0:
+        return f"Successfully updated profile field '{field}'."
+    else:
+        return f"Failed to update profile field '{field}'. User not found or no changes."
+
+tools = [search_tool, update_user_profile]
 
 # LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
@@ -46,6 +76,7 @@ async def tools_router(state: State):
 async def tool_node(state):
     tool_calls = state["messages"][-1].tool_calls
     tool_messages = []
+    user_id = state["userId"]
 
     for tool_call in tool_calls:
         tool_name = tool_call["name"]
@@ -53,9 +84,19 @@ async def tool_node(state):
         tool_id = tool_call["id"]
 
         if tool_name == "tavily_search_results_json":
-            search_results = await search_tool.ainvoke(tool_args)
+            tool_result = await search_tool.ainvoke(tool_args)
             tool_message = ToolMessage(
-                content=str(search_results),
+                content=str(tool_result),
+                tool_call_id=tool_id,
+                name=tool_name
+            )
+            tool_messages.append(tool_message)
+        elif tool_name == "update_user_profile":
+            # Add user_id to args for the tool
+            tool_args_with_user = {**tool_args, "user_id": user_id}
+            tool_result = await update_user_profile.ainvoke(tool_args_with_user)
+            tool_message = ToolMessage(
+                content=str(tool_result),
                 tool_call_id=tool_id,
                 name=tool_name
             )
@@ -85,7 +126,20 @@ app.add_middleware(
 )
 
 # Utils
+@app.on_event("startup")
+async def startup_event():
+    await motor_db.connect_to_mongo()
 
+@app.get("/all_users")
+async def get_all_users():
+    if motor_db.db is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    users_cursor = motor_db.db["users"].find({})
+    users = []
+    async for user in users_cursor:
+        user["_id"] = str(user["_id"])
+        users.append(user)
+    return {"users": users}
 
 def serialise_ai_message_chunk(chunk):
     if isinstance(chunk, AIMessageChunk):
@@ -98,12 +152,12 @@ def serialise_ai_message_chunk(chunk):
 def safe_json_encode(data):
     return json.dumps(data, ensure_ascii=False)
 
-
 class Message(BaseModel):
     role: str
-    content:str
+    content: str
 
 class ChatRequest(BaseModel):
+    userId: str
     messages: List[Message]
 
 def to_langchain_messages(messages: list[Message]):
@@ -117,13 +171,13 @@ def to_langchain_messages(messages: list[Message]):
             converted.append(SystemMessage(content=msg.content))
         else:
             raise ValueError(f"Unsupported role: {msg.role}")
+        
     return converted
 
-
 # Streaming generator
-async def generate_chat_responses(messages: list):
+async def generate_chat_responses(messages: list, userId: str):
     events = graph.astream_events(
-        {"messages": messages},
+        {"messages": messages, "userId": userId},
         version="v2",
     )
 
@@ -141,10 +195,16 @@ async def generate_chat_responses(messages: list):
                 else []
             )
             search_calls = [call for call in tool_calls if call["name"] == "tavily_search_results_json"]
+            update_calls = [call for call in tool_calls if call["name"] == "update_user_profile"]
 
             if search_calls:
                 search_query = search_calls[0]["args"].get("query", "")
                 yield f"data: {safe_json_encode({'type': 'search_start', 'query': search_query})}\n\n"
+
+            if update_calls:
+                field = update_calls[0]["args"].get("field", "")
+                value = update_calls[0]["args"].get("value", "")
+                yield f"data: {safe_json_encode({'type': 'profile_update', 'field': field, 'value': value})}\n\n"
 
         elif event_type == "on_tool_end" and event["name"] == "tavily_search_results_json":
             output = event["data"]["output"]
@@ -152,20 +212,24 @@ async def generate_chat_responses(messages: list):
                 urls = [item["url"] for item in output if isinstance(item, dict) and "url" in item]
                 yield f"data: {safe_json_encode({'type': 'search_results', 'urls': urls})}\n\n"
 
+        elif event_type == "on_tool_end" and event["name"] == "update_user_profile":
+            output = event["data"]["output"]
+            yield f"data: {safe_json_encode({'type': 'profile_update_result', 'result': output})}\n\n"
+
     yield f"data: {safe_json_encode({'type': 'end'})}\n\n"
 
 # Endpoint
 @app.post("/chat_stream")
-async def chat_stream(request:ChatRequest):
+async def chat_stream(request: ChatRequest):
 
     langchain_msgs = to_langchain_messages(request.messages)
-
+    
+    user_id = request.userId
 
     return StreamingResponse(
-        generate_chat_responses(langchain_msgs),
+        generate_chat_responses(langchain_msgs, user_id),
         media_type="text/event-stream",
-       
-)
+    )
 
 class TitleRequest(BaseModel):
     messages: List[Message]
@@ -203,7 +267,6 @@ async def generate_title(request: TitleRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/health")
 async def health_check():
