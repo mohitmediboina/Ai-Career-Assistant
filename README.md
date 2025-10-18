@@ -13,7 +13,11 @@ This repository hosts the code for Ai-Career-Assistant, an AI-powered career gui
 <img width="1859" height="877" alt="image" src="https://github.com/user-attachments/assets/1d1bbb39-b06d-4248-a0de-239319958bb0" />
 
 
-## Demo
+## Demo Video
+
+https://github.com/user-attachments/assets/a7f09864-df03-427f-9b8f-449c3cfbec81
+
+
 
 ## Key Features & Benefits
 
