@@ -3,6 +3,15 @@
 ## Project Title & Description
 
 This repository hosts the code for Ai-Career-Assistant, an AI-powered career guidance tool designed to provide users with personalized insights and resources to navigate their career paths. This project aims to leverage AI to assist users in exploring career options, developing skills,Analysis of Resume and preparing for job opportunities.
+<img width="1915" height="1025" alt="Screenshot 2025-10-18 103218" src="https://github.com/user-attachments/assets/38a62022-3a04-41a2-ae89-3374728ceae8" />
+<img width="1899" height="1030" alt="image" src="https://github.com/user-attachments/assets/aef15043-86a9-47c8-909e-47727065bb92" />
+<img width="1916" height="1013" alt="image" src="https://github.com/user-attachments/assets/46e484f6-7b32-48e6-b82a-4a405206048a" />
+<img width="1897" height="933" alt="image" src="https://github.com/user-attachments/assets/3a9b19de-b51c-4e2c-8ac4-25b204d1b703" />
+## Data Flow Diagram
+<img width="1859" height="877" alt="image" src="https://github.com/user-attachments/assets/1d1bbb39-b06d-4248-a0de-239319958bb0" />
+
+
+## Demo
 
 ## Key Features & Benefits
 
