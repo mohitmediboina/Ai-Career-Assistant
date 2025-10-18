@@ -13,7 +13,7 @@ This repository hosts the code for Ai-Career-Assistant, an AI-powered career gui
 *   **Job Preparation Assistance:** Provides tools and tips for resume building, interview preparation, and job searching.
 *   **Chat Interface:** Features a conversational AI interface powered by LangGraph for interactive career counseling.
 *   **Search Integration:** Integrates with Tavily Search to provide up-to-date information on job trends and industry insights.
-
+*   **Resume Analyser:** It analyses resume based on job description and resume give the score and suggestions to edit.
 ## Prerequisites & Dependencies
 
 Before you begin, ensure you have the following installed:
